@@ -46,6 +46,7 @@ tasks.test {
 // Task to create a fat JAR with all dependencies
 tasks.register<Jar>("fatJar") {
     archiveFileName.set("simple-tgbot.jar")
+    destinationDirectory.set(layout.projectDirectory.dir("libs"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {

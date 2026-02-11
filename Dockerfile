@@ -8,8 +8,8 @@ WORKDIR /build
 # Copy entire project directory
 COPY . .
 
-# Make gradlew executable and build the fat JAR with custom output directory
-RUN chmod +x gradlew && ./gradlew fatJar -PbuildDir=/build/libs --no-daemon
+# Make gradlew executable and build the fat JAR
+RUN chmod +x gradlew && ./gradlew fatJar --no-daemon
 
 # Stage 2: Runtime stage
 FROM amazoncorretto:22
