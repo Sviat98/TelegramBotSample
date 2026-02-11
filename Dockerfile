@@ -8,16 +8,16 @@ WORKDIR /build
 # Copy entire project directory
 COPY . .
 
-# Make gradlew executable and build the fat JAR
-RUN chmod +x gradlew && ./gradlew fatJar --no-daemon
+# Make gradlew executable and build the fat JAR with custom output directory
+RUN chmod +x gradlew && ./gradlew fatJar -PbuildDir=/build/libs --no-daemon
 
 # Stage 2: Runtime stage
 FROM amazoncorretto:22
 
 WORKDIR /app
 
-# Копируем собранный JAR-файл из стадии сборки
-COPY --from=build /app/build/libs/*.jar ./simple-tgbot.jar
+# Copy the built JAR file from the build stage
+COPY --from=build /build/libs/*.jar ./simple-tgbot.jar
 
 # Set permissions
 RUN chmod +x simple-tgbot.jar
