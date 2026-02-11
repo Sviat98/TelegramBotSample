@@ -1,0 +1,12 @@
+{
+  "mcpServers" : {
+    "deepwiki" : {
+      "type" : "sse",
+      "url" : "https://mcp.deepwiki.com/sse"
+    },
+    "maven-deps-server" : {
+      "command" : "cmd /c npx -y",
+      "args" : [ "mcp-maven-deps" ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(gradlew.bat:*)",
+      "Bash(./gradlew.bat --refresh-dependencies build --no-daemon)",
+      "Bash(./gradlew.bat build:*)",
+      "WebSearch",
+      "Bash(./gradlew.bat clean build:*)",
+      "Bash(findstr:*)",
+      "mcp__deepwiki__read_wiki_structure",
+      "mcp__deepwiki__ask_question",
+      "WebFetch(domain:github.com)",
+      "Bash(git add:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "deepwiki",
+    "maven-deps-server"
+  ]
+}
