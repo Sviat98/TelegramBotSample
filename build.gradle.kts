@@ -43,22 +43,33 @@ tasks.test {
     useJUnitPlatform()
 }
 
-// Task to create a fat JAR with all dependencies
-tasks.register<Jar>("fatJar") {
-    archiveFileName.set("simple-tgbot.jar")
-    destinationDirectory.set(layout.projectDirectory.dir("libs"))
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
+tasks.jar {
     manifest {
-        attributes("Main-Class" to "com.bashkevich.MainKt")
+        attributes["Main-Class"] = "com.bashkevich.MainKt"
     }
-
-    from(sourceSets.main.get().output)
-
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get()
-            .filter { it.name.endsWith("jar") }
-            .map { zipTree(it) }
-    })
+    // Включаем все зависимости
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    // Явно указываем имя выходного файла
+    archiveFileName.set("TelegramBotSample-${version}.jar")
 }
+
+// Task to create a fat JAR with all dependencies
+//tasks.register<Jar>("fatJar") {
+//    archiveFileName.set("simple-tgbot.jar")
+//    destinationDirectory.set(layout.projectDirectory.dir("libs"))
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//
+//    manifest {
+//        attributes("Main-Class" to "com.bashkevich.MainKt")
+//    }
+//
+//    from(sourceSets.main.get().output)
+//
+//    dependsOn(configurations.runtimeClasspath)
+//    from({
+//        configurations.runtimeClasspath.get()
+//            .filter { it.name.endsWith("jar") }
+//            .map { zipTree(it) }
+//    })
+//}
