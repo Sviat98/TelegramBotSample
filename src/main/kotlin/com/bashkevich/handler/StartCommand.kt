@@ -3,7 +3,8 @@ package com.bashkevich.handler
 import com.bashkevich.service.CounterApiService
 import io.github.dehuckakpyt.telegrambot.handling.BotHandling
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.koin.core.component.get
+import org.koin.mp.KoinPlatform
 
 fun BotHandling.startCommand() {
     command("/start", next = "get_counter_name") {
@@ -12,8 +13,8 @@ fun BotHandling.startCommand() {
 
     step("get_counter_name") {
         val counterName = text
+        val apiService = KoinPlatform.getKoin().get<CounterApiService>()
 
-        val apiService: CounterApiService by StartCommandHelper.inject()
         try {
             val counter = apiService.createCounter(counterName)
             sendMessage("✅ Counter created!\nName: ${counter.name}\nID: ${counter.id}")
@@ -22,5 +23,3 @@ fun BotHandling.startCommand() {
         }
     }
 }
-
-object StartCommandHelper : KoinComponent

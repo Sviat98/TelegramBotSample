@@ -16,7 +16,9 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import org.koin.core.annotation.Single
 
+@Single
 class CounterApiService {
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
