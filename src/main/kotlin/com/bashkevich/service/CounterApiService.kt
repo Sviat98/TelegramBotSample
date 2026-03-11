@@ -13,7 +13,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 class CounterApiService {
@@ -26,15 +27,11 @@ class CounterApiService {
         }
     }
 
-    suspend fun createCounter(name: String): CounterDto {
-        return client.post("https://api.tennisscorekeeper.tech/counters") {
+    suspend fun createCounter(name: String): CounterDto = withContext(Dispatchers.IO) {
+        client.post("https://api.tennisscorekeeper.tech/counters") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Origin, "https://tennisscorekeeper.tech")
             setBody(CreateCounterRequest(name))
         }.body<CounterDto>()
-    }
-
-    fun close() {
-        client.close()
     }
 }
