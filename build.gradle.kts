@@ -5,7 +5,8 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
+    //alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
 }
 
 group = "com.bashkevich"
@@ -34,7 +35,7 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.koin.ktor)
     compileOnly(libs.koin.annotations)
-    ksp(libs.koin.ksp.compiler)
+    //ksp(libs.koin.ksp.compiler)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
