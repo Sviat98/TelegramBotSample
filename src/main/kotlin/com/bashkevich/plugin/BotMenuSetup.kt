@@ -11,6 +11,7 @@ fun setupBotMenu(bot: TelegramBot, scope: CoroutineScope) {
         bot.setMyCommands(
             listOf(
                 BotCommand("start", "Запустить бота"),
+                BotCommand("register", "Регистрация на мероприятия"),
                 BotCommand("change_city", "Изменить город"),
                 BotCommand("help", "Помощь")
             )

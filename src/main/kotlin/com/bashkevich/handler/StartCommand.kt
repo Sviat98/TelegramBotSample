@@ -1,6 +1,8 @@
 package com.bashkevich.handler
 
+import com.bashkevich.model.QuizEventDto
 import com.bashkevich.service.CounterApiService
+import com.bashkevich.service.QuizEventService
 import com.bashkevich.service.UserCityCache
 import io.github.dehuckakpyt.telegrambot.ext.container.chatId
 import io.github.dehuckakpyt.telegrambot.factory.keyboard.inlineKeyboard
@@ -28,6 +30,30 @@ fun BotHandling.startCommand() {
         }
     }
 
+    command("/register") {
+        val cityCache = KoinPlatform.getKoin().get<UserCityCache>()
+        val quizEventService = KoinPlatform.getKoin().get<QuizEventService>()
+
+        val city = cityCache.getCity(chatId)
+
+        try {
+            val events = quizEventService.getQuizEvents(city)
+
+            if (events.isEmpty()) {
+                if (city != null) {
+                    sendMessage("❌ Мероприятий в вашем городе пока нет")
+                } else {
+                    sendMessage("❌ Мероприятий пока нет. Укажите ваш город с помощью команды /change_city")
+                }
+            } else {
+                val message = buildEventsMessage(events, city)
+                sendMessage(message)
+            }
+        } catch (e: Exception) {
+            sendMessage("❌ Произошла ошибка при получении списка мероприятий: ${e.message}")
+        }
+    }
+
     command("/change_city") {
         sendMessage("Select your new city:", replyMarkup = inlineKeyboard(
             callbackButton("Minsk", "select_city", "Minsk"),
@@ -43,6 +69,7 @@ fun BotHandling.startCommand() {
             callbackButton("Gomel", "select_city", "Gomel")
         ))
     }
+
     callback("select_city") {
         val city = transferredOrNull<String>()!!
         val cityCache = KoinPlatform.getKoin().get<UserCityCache>()
@@ -62,6 +89,7 @@ fun BotHandling.startCommand() {
 
             📋 Доступные команды:
             /start - Начать работу / изменить город
+            /register - Регистрация на мероприятия
             /change_city - Изменить город
             /help - Эта справка
 
@@ -73,6 +101,7 @@ fun BotHandling.startCommand() {
 
             📋 Доступные команды:
             /start - Выбрать город
+            /register - Регистрация на мероприятия
             /change_city - Изменить город
             /help - Эта справка
 
@@ -93,4 +122,22 @@ fun BotHandling.startCommand() {
 //            sendMessage("❌ Failed to create counter: ${e.message}")
 //        }
 //    }
+}
+
+private fun buildEventsMessage(events: List<QuizEventDto>, userCity: String?): String {
+    val header = if (userCity != null) {
+        "🏙 Доступные мероприятия в $userCity:\n\n"
+    } else {
+        "🏙 Доступные мероприятия:\n\n"
+    }
+
+    val eventsList = events.mapIndexed { index, event ->
+        """
+        ${index + 1}. ${event.title}
+           📅 ${event.quizDay.dateTime}
+           📍 ${event.quizDay.city}
+        """.trimIndent()
+    }.joinToString("\n\n")
+
+    return header + eventsList
 }

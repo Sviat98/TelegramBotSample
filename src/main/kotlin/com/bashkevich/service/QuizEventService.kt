@@ -1,7 +1,6 @@
 package com.bashkevich.service
 
-import com.bashkevich.model.CounterDto
-import com.bashkevich.model.CreateCounterRequest
+import com.bashkevich.model.QuizEventDto
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -16,7 +15,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single
-class CounterApiService {
+class QuizEventService {
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -30,10 +29,13 @@ class CounterApiService {
         }
     }
 
-    suspend fun createCounter(name: String): CounterDto = withContext(Dispatchers.IO) {
-        client.post("counters") {
-            header(HttpHeaders.Origin, "https://tennisscorekeeper.tech")
-            setBody(CreateCounterRequest(name))
-        }.body<CounterDto>()
+    suspend fun getQuizEvents(city: String? = null): List<QuizEventDto> = withContext(Dispatchers.IO) {
+
+        client.get("quizEvents"){
+          city?.let {
+              parameter("city", it)
+          }
+            parameter("registration_open",true)
+        }.body<List<QuizEventDto>>()
     }
 }
