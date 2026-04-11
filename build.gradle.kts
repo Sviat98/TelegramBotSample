@@ -40,6 +40,9 @@ dependencies {
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // DateTime
+    implementation(libs.kotlinx.datetime)
+
     // Logging
     implementation(libs.logback.classic)
 
