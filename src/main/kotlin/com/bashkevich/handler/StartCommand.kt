@@ -7,8 +7,15 @@ import com.bashkevich.service.UserCityCache
 import io.github.dehuckakpyt.telegrambot.ext.container.chatId
 import io.github.dehuckakpyt.telegrambot.factory.keyboard.inlineKeyboard
 import io.github.dehuckakpyt.telegrambot.handling.BotHandling
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import org.koin.mp.KoinPlatform
 
 fun BotHandling.startCommand() {
@@ -46,8 +53,22 @@ fun BotHandling.startCommand() {
                     sendMessage("❌ Мероприятий пока нет. Укажите ваш город с помощью команды /change_city")
                 }
             } else {
-                val message = buildEventsMessage(events, city)
-                sendMessage(message)
+                // Отправляем заголовок
+                val header = if (city != null) {
+                    "🏙 Доступные мероприятия в $city:\n\nВсего найдено: ${events.size}"
+                } else {
+                    "🏙 Доступные мероприятия:\n\nВсего найдено: ${events.size}"
+                }
+                sendMessage(header)
+
+                // Отправляем каждое мероприятие отдельным сообщением
+                events.forEach { event ->
+                    val eventMessage = buildEventMessage(event)
+                    val eventId = event.id ?: event.quizDay.id // Используем quizDay.id если event.id null
+                    sendMessage(eventMessage, replyMarkup = inlineKeyboard(
+                        callbackButton("Зарегистрироваться", "register_event", eventId)
+                    ))
+                }
             }
         } catch (e: Exception) {
             sendMessage("❌ Произошла ошибка при получении списка мероприятий: ${e.message}")
@@ -77,6 +98,12 @@ fun BotHandling.startCommand() {
         cityCache.setCity(chatId, city)
         answerCallbackQuery(query.id, "You selected: $city")
         sendMessage("✅ City saved: $city\n\nYour city is now set to $city. You can continue using the bot.")
+    }
+
+    callback("register_event") {
+        val eventId = transferredOrNull<String>()!!
+        // Пока ничего не делаем, просто подтверждаем нажатие
+        answerCallbackQuery(query.id, "Заявка на регистрацию принята")
     }
 
     command("/help") {
@@ -124,20 +151,34 @@ fun BotHandling.startCommand() {
 //    }
 }
 
-private fun buildEventsMessage(events: List<QuizEventDto>, userCity: String?): String {
-    val header = if (userCity != null) {
-        "🏙 Доступные мероприятия в $userCity:\n\n"
-    } else {
-        "🏙 Доступные мероприятия:\n\n"
+private fun buildEventMessage(event: QuizEventDto): String {
+    val formattedDateTime = formatToUtcPlus3(event.quizDay.dateTime)
+    return """
+        🎯 ${event.title}
+
+        📅 Дата и время: $formattedDateTime
+        📍 Город: ${event.quizDay.city}
+    """.trimIndent()
+}
+
+@OptIn(FormatStringsInDatetimeFormats::class)
+private fun formatToUtcPlus3(localDateTime: LocalDateTime): String {
+    // Предполагаем, что входящее время в UTC, и конвертируем в UTC+3
+    // Используем Instant для правильной конвертации
+    val utcInstant = localDateTime.toInstant(TimeZone.of("UTC"))
+    val utcPlus3DateTime = utcInstant.toLocalDateTime(TimeZone.of("UTC+3"))
+
+    val formatter = LocalDateTime.Format {
+        dayOfMonth()
+        char('.')
+        monthNumber()
+        char('.')
+        year()
+        char(' ')
+        hour()
+        char(':')
+        minute()
     }
 
-    val eventsList = events.mapIndexed { index, event ->
-        """
-        ${index + 1}. ${event.title}
-           📅 ${event.quizDay.dateTime}
-           📍 ${event.quizDay.city}
-        """.trimIndent()
-    }.joinToString("\n\n")
-
-    return header + eventsList
+    return formatter.format(utcPlus3DateTime)
 }
