@@ -1,5 +1,7 @@
 package com.bashkevich.service
 
+import com.bashkevich.model.PerformanceRegisterRequest
+import com.bashkevich.model.PerformanceRegistrationDto
 import com.bashkevich.model.QuizEventDto
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -37,5 +39,11 @@ class QuizEventService {
           }
             parameter("registration_open",true)
         }.body<List<QuizEventDto>>()
+    }
+
+    suspend fun registerTeam(eventId: String, request: PerformanceRegisterRequest): PerformanceRegistrationDto = withContext(Dispatchers.IO) {
+        client.post("quizEvents/$eventId/register") {
+            setBody(request)
+        }.body()
     }
 }
