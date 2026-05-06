@@ -185,6 +185,7 @@ fun BotHandling.startCommand() {
                         📋 Детали регистрации:
                         Команда: ${registrationResult.teamName}
                         Количество человек: $squadSize
+                        🕒 Дата регистрации: ${formatToUtcPlus3(registrationResult.registeredAt, includeSeconds = true)}
                         📍 Город: ${registrationResult.city}
                         📅 Дата и время: $formattedDateTime
 
@@ -245,7 +246,7 @@ private fun buildEventMessage(event: QuizEventDto): String {
 }
 
 @OptIn(FormatStringsInDatetimeFormats::class)
-private fun formatToUtcPlus3(localDateTime: LocalDateTime): String {
+private fun formatToUtcPlus3(localDateTime: LocalDateTime, includeSeconds: Boolean = false): String {
     // Предполагаем, что входящее время в UTC, и конвертируем в UTC+3
     // Используем Instant для правильной конвертации
     val utcInstant = localDateTime.toInstant(TimeZone.of("UTC"))
@@ -261,6 +262,10 @@ private fun formatToUtcPlus3(localDateTime: LocalDateTime): String {
         hour()
         char(':')
         minute()
+        if (includeSeconds) {
+            char(':')
+            second()
+        }
     }
 
     return formatter.format(utcPlus3DateTime)

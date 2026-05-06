@@ -12,6 +12,8 @@ data class PerformanceRegistrationDto(
     val teamName: String,
     @SerialName("reg_password")
     val regPassword: String,
+    @SerialName("registered_at")
+    val registeredAt: LocalDateTime,
     @SerialName("city")
     val city: String,
     @SerialName("date_time")
