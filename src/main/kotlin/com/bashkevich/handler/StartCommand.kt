@@ -63,7 +63,7 @@ fun BotHandling.startCommand() {
                 // Отправляем каждое мероприятие отдельным сообщением
                 events.forEach { event ->
                     val eventMessage = buildEventMessage(event)
-                    val eventId = event.id ?: event.quizDay.id // Используем quizDay.id если event.id null
+                    val eventId = event.id
                     sendMessage(eventMessage, replyMarkup = inlineKeyboard(
                         callbackButton("Зарегистрироваться", "register_event", eventId)
                     ))
@@ -236,12 +236,12 @@ fun BotHandling.startCommand() {
 }
 
 private fun buildEventMessage(event: QuizEventDto): String {
-    val formattedDateTime = formatToUtcPlus3(event.quizDay.dateTime)
+    val formattedDateTime = formatToUtcPlus3(event.dateTime)
     return """
-        🎯 ${event.title}
+        🎯 ${event.quizWeek.title}
 
         📅 Дата и время: $formattedDateTime
-        📍 Город: ${event.quizDay.city}
+        📍 Город: ${event.city}
     """.trimIndent()
 }
 

@@ -6,22 +6,21 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class QuizEventDto(
+data class QuizWeekInfoDto(
     @SerialName(value = "id")
-    val id: String? = null,
-    @SerialName(value = "season_number")
-    val seasonNumber: Int = 0,
+    val id: String,
     @SerialName(value = "title")
     val title: String,
-    @SerialName(value = "quiz_day")
-    val quizDay: QuizDayDto
 )
 
 @Serializable
-data class QuizDayDto(
+data class QuizEventDto(
+    @SerialName(value = "id")
     val id: String,
     @SerialName(value = "season_number")
     val seasonNumber: Int = 0,
+    @SerialName(value = "quiz_week")
+    val quizWeek: QuizWeekInfoDto,
     @Contextual
     @SerialName(value = "date_time")
     val dateTime: LocalDateTime,
